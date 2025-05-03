@@ -56,6 +56,7 @@ import org.jabref.model.entry.LinkedFile;
 import org.jabref.model.entry.field.StandardField;
 import org.jabref.model.groups.GroupEntryChanger;
 import org.jabref.model.groups.GroupTreeNode;
+import org.jabref.model.groups.SmartGroup;
 import org.jabref.model.util.FileUpdateMonitor;
 import org.jabref.model.util.OptionalUtil;
 
@@ -164,6 +165,7 @@ public class ImportHandler {
                                     // Modifiers do not work on macOS: https://bugs.openjdk.org/browse/JDK-8264172
                                     // Similar code as org.jabref.gui.preview.PreviewPanel.PreviewPanel
                                     DragDrop.handleDropOfFiles(List.of(file), transferMode, fileLinker, entry);
+                                    addImportEntriesGroup(pdfEntriesInFile);
                                     entriesToAdd.addAll(pdfEntriesInFile);
                                     addResultToList(file, true, Localization.lang("File was successfully imported as a new entry"));
                                 });
@@ -263,6 +265,7 @@ public class ImportHandler {
                               finalEntry = duplicateHandledEntry.get();
                           }
                           importCleanedEntries(bibDatabaseContext, List.of(finalEntry));
+                          addImportEntriesGroup(List.of(entryToInsert));
                           downloadLinkedFiles(finalEntry);
                           BibEntry entryToFocus = finalEntry;
                           stateManager.activeTabProperty().get().ifPresent(tab -> tab.clearAndSelect(entryToFocus));
@@ -500,5 +503,14 @@ public class ImportHandler {
             LOGGER.error("Error importing PDF from URL - IO issue", ex);
             return List.of();
         }
+    }
+
+    private void addImportEntriesGroup(List<BibEntry> entryToInsert) {
+        this.bibDatabaseContext.getMetaData()
+                          .getGroups()
+                          .ifPresent(grp -> grp.getChildren()
+                                               .stream()
+                                               .filter(grp1 -> grp1.getGroup() instanceof SmartGroup)
+                                               .forEach(grp3 -> grp3.addEntriesToGroup(entryToInsert)));
     }
 }

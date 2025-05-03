@@ -54,6 +54,8 @@ public class MetaData {
     public static final String PROTECTED_FLAG_META = "protectedFlag";
     public static final String SELECTOR_META_PREFIX = "selector_";
     public static final String BIBDESK_STATIC_FLAG = "BibDesk Static Groups";
+    public static final String ADD_IMPORTED_ENTRIES = "addImportedEntries";
+    public static final String ADD_IMPORTED_ENTRIES_GROUP_NAME = "addImportedEntriesGroupName";
 
     public static final char ESCAPE_CHARACTER = '\\';
     public static final char SEPARATOR_CHARACTER = ';';
@@ -82,6 +84,8 @@ public class MetaData {
     private boolean isEventPropagationEnabled = true;
     private boolean encodingExplicitlySupplied;
     private String versionDBStructure;
+    private boolean addImportedEntries;
+    private String addImportedEntriesGroupName;
 
     /**
      * Constructs an empty metadata.
@@ -401,7 +405,10 @@ public class MetaData {
                 && (mode == that.mode)
                 && Objects.equals(librarySpecificFileDirectory, that.librarySpecificFileDirectory)
                 && Objects.equals(contentSelectors, that.contentSelectors)
-                && Objects.equals(versionDBStructure, that.versionDBStructure);
+                && Objects.equals(versionDBStructure, that.versionDBStructure)
+                && Objects.equals(addImportedEntries, that.addImportedEntries)
+                && Objects.equals(addImportedEntriesGroupName, that.addImportedEntriesGroupName);
+
     }
 
     @Override
@@ -431,5 +438,13 @@ public class MetaData {
 
     public Map<String, Path> getBlgFilePaths() {
         return blgFilePathMap;
+    }
+
+    public boolean isAddImportedEntriesEnabled() {
+        return this.addImportedEntries;
+    }
+
+    public Optional<String> getAddImportedEntriesGroupName() {
+        return Optional.ofNullable(addImportedEntriesGroupName);
     }
 }

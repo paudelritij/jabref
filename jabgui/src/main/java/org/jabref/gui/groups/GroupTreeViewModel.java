@@ -36,9 +36,11 @@ import org.jabref.model.groups.AbstractGroup;
 import org.jabref.model.groups.AutomaticKeywordGroup;
 import org.jabref.model.groups.AutomaticPersonsGroup;
 import org.jabref.model.groups.ExplicitGroup;
+import org.jabref.model.groups.GroupHierarchyType;
 import org.jabref.model.groups.GroupTreeNode;
 import org.jabref.model.groups.RegexKeywordGroup;
 import org.jabref.model.groups.SearchGroup;
+import org.jabref.model.groups.SmartGroup;
 import org.jabref.model.groups.TexGroup;
 import org.jabref.model.groups.WordKeywordGroup;
 import org.jabref.model.metadata.MetaData;
@@ -160,6 +162,7 @@ public class GroupTreeViewModel extends AbstractViewModel {
                     .map(root -> new GroupNodeViewModel(newDatabase.get(), stateManager, taskExecutor, root, localDragboard, preferences))
                     .orElse(GroupNodeViewModel.getAllEntriesGroup(newDatabase.get(), stateManager, taskExecutor, localDragboard, preferences));
 
+            addImportEntriesGroup(newRoot);
             rootGroup.setValue(newRoot);
             if (stateManager.getSelectedGroups(newDatabase.get()).isEmpty()) {
                 stateManager.setSelectedGroups(newDatabase.get(), List.of(newRoot.getGroupNode()));
@@ -172,6 +175,35 @@ public class GroupTreeViewModel extends AbstractViewModel {
             rootGroup.setValue(null);
         }
         currentDatabase = newDatabase;
+    }
+
+    /**
+     * Web Import Entries Group
+     */
+    private void addImportEntriesGroup(GroupNodeViewModel root) {
+        if (!preferences.getLibraryPreferences().isAddImportedEntriesEnabled()) {
+            return;
+        }
+
+        String grpName = preferences.getLibraryPreferences().getAddImportedEntriesGroupName();
+        AbstractGroup addImportEntriesGroup = new SmartGroup(grpName, GroupHierarchyType.INDEPENDENT, ',');
+
+        // check if group is already exist
+        boolean isGrpExist = root.getGroupNode()
+                                 .getChildren()
+                                 .stream()
+                                 .map(GroupTreeNode::getGroup) // Get the group from each child
+                                 .anyMatch(grp -> grp instanceof SmartGroup);
+        if (isGrpExist) {
+            return;
+        }
+
+        currentDatabase.ifPresent(database -> {
+            GroupTreeNode newSubgroup = root.addSubgroup(addImportEntriesGroup);
+            selectedGroups.setAll(new GroupNodeViewModel(database, stateManager, taskExecutor, newSubgroup, localDragboard, preferences));
+            dialogService.notify(Localization.lang("Added group \"%0\".", addImportEntriesGroup.getName()));
+            writeGroupChangesToMetaData();
+        });
     }
 
     /**
