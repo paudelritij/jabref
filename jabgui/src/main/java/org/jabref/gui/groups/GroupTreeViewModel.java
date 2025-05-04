@@ -162,7 +162,6 @@ public class GroupTreeViewModel extends AbstractViewModel {
                     .map(root -> new GroupNodeViewModel(newDatabase.get(), stateManager, taskExecutor, root, localDragboard, preferences))
                     .orElse(GroupNodeViewModel.getAllEntriesGroup(newDatabase.get(), stateManager, taskExecutor, localDragboard, preferences));
 
-            addImportEntriesGroup(newRoot);
             rootGroup.setValue(newRoot);
             if (stateManager.getSelectedGroups(newDatabase.get()).isEmpty()) {
                 stateManager.setSelectedGroups(newDatabase.get(), List.of(newRoot.getGroupNode()));
@@ -175,12 +174,13 @@ public class GroupTreeViewModel extends AbstractViewModel {
             rootGroup.setValue(null);
         }
         currentDatabase = newDatabase;
+        newDatabase.ifPresent(db -> addImportEntriesGroup(rootGroup.get()));
     }
 
     /**
      * Web Import Entries Group
      */
-    private void addImportEntriesGroup(GroupNodeViewModel root) {
+    private void addImportEntriesGroup(GroupNodeViewModel parent) {
         if (!preferences.getLibraryPreferences().isAddImportedEntriesEnabled()) {
             return;
         }
@@ -189,7 +189,7 @@ public class GroupTreeViewModel extends AbstractViewModel {
         AbstractGroup addImportEntriesGroup = new SmartGroup(grpName, GroupHierarchyType.INDEPENDENT, ',');
 
         // check if group is already exist
-        boolean isGrpExist = root.getGroupNode()
+        boolean isGrpExist = parent.getGroupNode()
                                  .getChildren()
                                  .stream()
                                  .map(GroupTreeNode::getGroup) // Get the group from each child
@@ -198,9 +198,10 @@ public class GroupTreeViewModel extends AbstractViewModel {
             return;
         }
 
-        currentDatabase.ifPresent(database -> {
-            GroupTreeNode newSubgroup = root.addSubgroup(addImportEntriesGroup);
-            selectedGroups.setAll(new GroupNodeViewModel(database, stateManager, taskExecutor, newSubgroup, localDragboard, preferences));
+        currentDatabase.ifPresent(db -> {
+            GroupTreeNode newSubgroup = parent.addSubgroup(addImportEntriesGroup);
+            newSubgroup.moveTo(parent.getGroupNode(), 0);
+            selectedGroups.setAll(new GroupNodeViewModel(db, stateManager, taskExecutor, newSubgroup, localDragboard, preferences));
             dialogService.notify(Localization.lang("Added group \"%0\".", addImportEntriesGroup.getName()));
             writeGroupChangesToMetaData();
         });
