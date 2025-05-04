@@ -464,14 +464,13 @@ public class GroupNodeViewModel {
         AbstractGroup group = groupNode.getGroup();
         return switch (group) {
             case AllEntriesGroup _, ExplicitGroup _, SearchGroup _, TexGroup _ -> true;
-            case SmartGroup _ -> false;
+            case AutomaticKeywordGroup _, AutomaticPersonsGroup _, SmartGroup _ -> false;
             case KeywordGroup _ ->
                 // KeywordGroup is parent of LastNameGroup, RegexKeywordGroup and WordKeywordGroup
                     groupNode.getParent()
                             .map(GroupTreeNode::getGroup)
                             .map(groupParent -> !(groupParent instanceof AutomaticKeywordGroup || groupParent instanceof AutomaticPersonsGroup))
                             .orElse(false);
-            case AutomaticKeywordGroup _, AutomaticPersonsGroup _ -> false;
             case null -> throw new IllegalArgumentException("Group cannot be null");
             default -> throw new UnsupportedOperationException("canAddGroupsIn method not yet implemented in group: " + group.getClass().getName());
         };

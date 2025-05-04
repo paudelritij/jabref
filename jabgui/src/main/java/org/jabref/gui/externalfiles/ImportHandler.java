@@ -165,7 +165,7 @@ public class ImportHandler {
                                     // Modifiers do not work on macOS: https://bugs.openjdk.org/browse/JDK-8264172
                                     // Similar code as org.jabref.gui.preview.PreviewPanel.PreviewPanel
                                     DragDrop.handleDropOfFiles(List.of(file), transferMode, fileLinker, entry);
-                                    addImportEntriesGroup(pdfEntriesInFile);
+                                    addToImportEntriesGroup(pdfEntriesInFile);
                                     entriesToAdd.addAll(pdfEntriesInFile);
                                     addResultToList(file, true, Localization.lang("File was successfully imported as a new entry"));
                                 });
@@ -265,7 +265,7 @@ public class ImportHandler {
                               finalEntry = duplicateHandledEntry.get();
                           }
                           importCleanedEntries(bibDatabaseContext, List.of(finalEntry));
-                          addImportEntriesGroup(List.of(entryToInsert));
+                          addToImportEntriesGroup(List.of(finalEntry));
                           downloadLinkedFiles(finalEntry);
                           BibEntry entryToFocus = finalEntry;
                           stateManager.activeTabProperty().get().ifPresent(tab -> tab.clearAndSelect(entryToFocus));
@@ -505,7 +505,7 @@ public class ImportHandler {
         }
     }
 
-    private void addImportEntriesGroup(List<BibEntry> entryToInsert) {
+    private void addToImportEntriesGroup(List<BibEntry> entryToInsert) {
         this.bibDatabaseContext.getMetaData()
                           .getGroups()
                           .ifPresent(grp -> grp.getChildren()

@@ -63,19 +63,7 @@ public class GroupDescriptions {
     }
 
     public static String getShortDescriptionSmartGroup(SmartGroup smartGroup) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("<b>").append(smartGroup.getName()).append("</b> - ").append(Localization.lang("smart group"));
-        switch (smartGroup.getHierarchicalContext()) {
-            case INCLUDING:
-                sb.append(", ").append(Localization.lang("includes subgroups"));
-                break;
-            case REFINING:
-                sb.append(", ").append(Localization.lang("refines supergroup"));
-                break;
-            default:
-                break;
-        }
-        return sb.toString();
+        return Localization.lang("<b>Smart Group</b> (Import Entries)");
     }
 
     public static String getShortDescription(SearchGroup searchGroup, boolean showDynamic) {

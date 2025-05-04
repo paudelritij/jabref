@@ -88,5 +88,4 @@ public class LibraryPreferences {
     public void setAddImportedEntriesGroupName(String addImportedEntriesGroupName) {
         this.addImportedEntriesGroupName.set(addImportedEntriesGroupName);
     }
-
 }

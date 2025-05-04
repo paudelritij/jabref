@@ -174,37 +174,29 @@ public class GroupTreeViewModel extends AbstractViewModel {
             rootGroup.setValue(null);
         }
         currentDatabase = newDatabase;
-        newDatabase.ifPresent(db -> addImportEntriesGroup(rootGroup.get()));
+        newDatabase.ifPresent(db -> addGroupImportEntries(rootGroup.get()));
     }
 
-    /**
-     * Web Import Entries Group
-     */
-    private void addImportEntriesGroup(GroupNodeViewModel parent) {
+    private void addGroupImportEntries(GroupNodeViewModel parent) {
         if (!preferences.getLibraryPreferences().isAddImportedEntriesEnabled()) {
             return;
         }
 
         String grpName = preferences.getLibraryPreferences().getAddImportedEntriesGroupName();
-        AbstractGroup addImportEntriesGroup = new SmartGroup(grpName, GroupHierarchyType.INDEPENDENT, ',');
-
-        // check if group is already exist
+        AbstractGroup importEntriesGroup = new SmartGroup(grpName, GroupHierarchyType.INDEPENDENT, ',');
         boolean isGrpExist = parent.getGroupNode()
                                  .getChildren()
                                  .stream()
-                                 .map(GroupTreeNode::getGroup) // Get the group from each child
+                                 .map(GroupTreeNode::getGroup)
                                  .anyMatch(grp -> grp instanceof SmartGroup);
-        if (isGrpExist) {
-            return;
+        if (!isGrpExist) {
+            currentDatabase.ifPresent(db -> {
+                GroupTreeNode newSubgroup = parent.addSubgroup(importEntriesGroup);
+                newSubgroup.moveTo(parent.getGroupNode(), 0);
+                selectedGroups.setAll(new GroupNodeViewModel(db, stateManager, taskExecutor, newSubgroup, localDragboard, preferences));
+                writeGroupChangesToMetaData();
+            });
         }
-
-        currentDatabase.ifPresent(db -> {
-            GroupTreeNode newSubgroup = parent.addSubgroup(addImportEntriesGroup);
-            newSubgroup.moveTo(parent.getGroupNode(), 0);
-            selectedGroups.setAll(new GroupNodeViewModel(db, stateManager, taskExecutor, newSubgroup, localDragboard, preferences));
-            dialogService.notify(Localization.lang("Added group \"%0\".", addImportEntriesGroup.getName()));
-            writeGroupChangesToMetaData();
-        });
     }
 
     /**

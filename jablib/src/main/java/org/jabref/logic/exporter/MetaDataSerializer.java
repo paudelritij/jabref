@@ -1,7 +1,6 @@
 package org.jabref.logic.exporter;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,12 +61,6 @@ public class MetaDataSerializer {
         metaData.getVersionDBStructure().ifPresent(
                 versionDBStructure -> stringyMetaData.put(MetaData.VERSION_DB_STRUCT, List.of(versionDBStructure.trim())));
         metaData.getBlgFilePaths().forEach((user, path) -> stringyMetaData.put(MetaData.BLG_FILE_PATH + "-" + user, List.of(path.toString().trim())));
-
-        if (metaData.isAddImportedEntriesEnabled()) {
-            stringyMetaData.put(MetaData.ADD_IMPORTED_ENTRIES, Collections.singletonList("true"));
-        }
-        metaData.getAddImportedEntriesGroupName().ifPresent(
-                grpName -> stringyMetaData.put(MetaData.ADD_IMPORTED_ENTRIES_GROUP_NAME, Collections.singletonList(grpName.trim())));
 
         for (ContentSelector selector : metaData.getContentSelectorsSorted()) {
             stringyMetaData.put(MetaData.SELECTOR_META_PREFIX + selector.getField().getName(), selector.getValues());
