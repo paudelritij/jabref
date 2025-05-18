@@ -35,6 +35,8 @@ testing {
 }
 
 java {
+    sourceCompatibility = JavaVersion.VERSION_24
+    targetCompatibility = JavaVersion.VERSION_24
     toolchain {
         // If this is updated, also update
         // - build.gradle -> jacoco -> toolVersion (because JaCoCo does not support newest JDK out of the box. Check versions at https://www.jacoco.org/jacoco/trunk/doc/changes.html)
@@ -50,5 +52,24 @@ java {
         // See https://docs.gradle.org/current/javadoc/org/gradle/jvm/toolchain/JvmVendorSpec.html for a full list
         // Temurin does not ship jmods, thus we need to use another JDK -- see https://github.com/actions/setup-java/issues/804
         vendor = JvmVendorSpec.AZUL
+    }
+}
+
+tasks.javadoc {
+    ( options as StandardJavadocDocletOptions).apply {
+        encoding = "UTF-8"
+        // version = false
+        // author = false
+
+        addMultilineStringsOption("tag").setValue(listOf("apiNote", "implNote"))
+
+        // We cross-link to (non-visible) tests; therefore: no reference check
+        addBooleanOption("Xdoclint:all,-reference", true)
+
+        addMultilineStringsOption("-add-exports").value = listOf(
+            "javafx.controls/com.sun.javafx.scene.control=org.jabref",
+            "org.controlsfx.controls/impl.org.controlsfx.skin=org.jabref"
+        )
+
     }
 }
